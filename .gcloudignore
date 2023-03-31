@@ -5,3 +5,7 @@ pyproject.toml
 poetry.lock
 
 .venv
+
+README.md
+
+src/Class/__pycache__
