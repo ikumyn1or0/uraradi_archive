@@ -4,6 +4,9 @@ import re
 from typing import Union
 
 
+from Class import Time
+
+
 ADDITIONAL_GUESTS = {"2022-10-28": ["島村シャルロット", "宗谷いちか"]}
 
 
@@ -38,7 +41,6 @@ class Title:
         raise Exception
 
     def extract_guests(self):
-        print(self.title)
         if "総集編" in self.title:
             return []
         if 2 <= self.title.count("【"):
@@ -51,7 +53,6 @@ class Title:
             return guests
         if 2 <= self.title.count("｜"):
             casts_with_belongs = self.title[self.title.rfind("｜"): self.title.rfind(" // ")]
-            # casts_with_belongs = re.search(r"裏ラジオウルナイト｜.+ // \S+$", self.title).group()
             casts = casts_with_belongs[1:]
             guests = []
             for cast in casts.split(" / "):
@@ -62,47 +63,18 @@ class Title:
 
 
 @dataclasses.dataclass()
-class Time:
-    time_s: int
-
-    def __init__(self, time_s: str):
-        self.time_s = int(time_s)
-
-    def as_second(self) -> int:
-        return self.time_s
-
-    def as_hour(self) -> float:
-        return self.time_s / 3600
-
-    def as_hms(self) -> str:
-        abs_time_s = abs(self.time_s)
-        seconds = abs_time_s % 60
-        minutes = int(abs_time_s / 60) % 60
-        hms = str(minutes).zfill(2) + ":" + str(seconds).zfill(2)
-        if 1 <= abs_time_s / 3600:
-            hours = int(abs_time_s / 3600) % 24
-            hms = str(hours).zfill(2) + ":" + hms
-        if 1 <= abs_time_s / 86400:
-            days = int(abs_time_s / 86400)
-            hms = str(days) + ":" + hms
-        if self.time_s < 0:
-            hms = "-" + hms
-        return hms
-
-
-@dataclasses.dataclass()
 class Radio:
     date: str
     youtube_id: str
     title: Title
-    length: Time
+    length: Time.Time
     guests: list[str]
 
     def __init__(self, **args):
         self.date = args["date"]
         self.youtube_id = self.url_to_id(args["url"])
         self.title = Title(args["title"])
-        self.length = Time(args["length_s"])
+        self.length = Time.Time(args["length_s"])
         self.guests = self.title.extract_guests()
         if self.date in ADDITIONAL_GUESTS.keys():
             self.guests.extend(ADDITIONAL_GUESTS[self.date])
@@ -126,7 +98,7 @@ class Radio:
 
 
 @dataclasses.dataclass()
-class Playlist:
+class RadioList:
     radios: dict[str, Radio] = dataclasses.field(default_factory=dict, init=False)
 
     def __post_init__(self):
