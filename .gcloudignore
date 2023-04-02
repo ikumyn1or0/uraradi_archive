@@ -9,3 +9,4 @@ poetry.lock
 README.md
 
 src/Class/__pycache__
+src/pages/__pycache__

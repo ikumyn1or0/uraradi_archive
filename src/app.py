@@ -1,89 +1,106 @@
 import dash
 import dash_bootstrap_components as dbc
-import pandas as pd
+import dash_mantine_components as dmc
+from dash_iconify import DashIconify
 
 
-from Class import Radio
+from pages import overview, episode, browse, about
 
 
-font = {"font-family": 'Noto Sans JP'}
-
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.DARKLY])
 app.title = "裏ラジアーカイブ(仮)"
 server = app.server
 
 
-radiolist = Radio.RadioList()
-df_columns = ["日付", "リンク", "＃", "再生時間", "タイトル", "ゲスト"]
-df_list = []
-for radio in radiolist.radios.values():
-    thumbnail_url = f"http://img.youtube.com/vi/{radio.youtube_id}/default.jpg"
-    youtube_url = radio.get_url()
-    row = [radio.date, f"[![{youtube_url}]({thumbnail_url})]({youtube_url})", radio.title.as_number(), radio.length.as_hms(), radio.title.as_shorten(), "・".join(radio.guests)]
-    df_list.append(row)
-df_radio = pd.DataFrame(df_list, columns=df_columns)
-
-radio_table = dash.html.Div([
-    dash.html.H4("過去裏ラジ放送データ一覧", style=font),
-    # dash.html.P(id="table_out", style=font),
-    dash.dash_table.DataTable(
-        id="table",
-        columns=[{"id": x, "name": x, "presentation": "markdown"} if x == "リンク" else {"id": x, "name": x} for x in df_radio.columns],
-        data=df_radio.to_dict("records"),
-        style_header={"textAlign": "center"},
-        style_data={"textAlign": "left",
-                    "whiteSpace": "normal",
-                    "height": "auto"},
-        style_cell_conditional=[
-            {"if": {"column_id": "日付"},
-             "width": "10%"},
-            {"if": {"column_id": "リンク"},
-             "width": "10%"},
-            {"if": {"column_id": "＃"},
-             "width": "5%"},
-            {"if": {"column_id": "再生時間"},
-             "width": "10%"},
-            {"if": {"column_id": "タイトル"},
-             "width": "40%"},
-            {"if": {"column_id": "ゲスト"},
-             "width": "25%"},
-        ],
-        page_size=5,
-        style_cell=font,
-        style_as_list_view=True
-    ),
-])
+navbar = dbc.Navbar(
+    dbc.Container([
+        dbc.Stack(
+            [
+                dmc.ActionIcon(
+                    DashIconify(icon="ci:hamburger-md", width=30),
+                    variant="filled",
+                    color="gray",
+                    id="SIDEBAR_BUTTON"
+                ),
+                dash.html.A(
+                    dbc.Row([
+                        dbc.NavbarBrand("裏ラジアーカイブ(仮)")
+                    ]),
+                    href="/",
+                )
+            ],
+            direction="horizontal",
+            gap=3
+        )
+    ]),
+    color="dark",
+    dark=True,
+    expand="lg"
+)
 
 
-transcript_table = dash.html.Div([
-    dash.html.H4("書き起こしテキスト一覧")
-])
+sidebar = dbc.Offcanvas(
+    title="Menu",
+    is_open=False,
+    id="SIDEBAR",
+    children=[
+        dbc.Nav(
+            [
+                dbc.NavItem(dbc.NavLink("OVERVIEW", href="/", active="exact", id="temp")),
+                dbc.NavItem(dbc.NavLink("EPISODE", href="/episode", active="exact")),
+                dbc.NavItem(dbc.NavLink("BROWSE", href="/browse", active="exact")),
+                dbc.NavItem(dbc.NavLink("ABOUT", href="/about", active="exact")),
+            ],
+            justified=True,
+            vertical=True,
+            pills=True,
+        )
+    ],
+    style={
+        "width": "300px"
+    }
+)
 
 
-navbar = dbc.NavbarSimple(brand="裏ラジアーカイブ(仮)")
+content = dash.html.Div(
+    id="PAGE_CONTENT",
+)
 
 
-# content = dbc.Row([radio_table, transcript_table])
-content = dbc.Container([dbc.Row([
-    dash.dcc.Markdown("こちらのサイトはまだ開発中です！\n現在運用中の裏ラジアーカイブスは[こちら](https://uraradi-archives.streamlit.app/)。", style=font),
-    radio_table])])
-
-
-# app.layout = dbc.Container([content])
-app.layout = dash.html.Div([
-    navbar,
-    content
-])
+app.layout = dash.html.Div(
+    [
+        dash.dcc.Location(id="URL", refresh=False),
+        sidebar,
+        navbar,
+        content
+    ]
+)
 
 
 @app.callback(
-    dash.Output("table_out", "children"),
-    dash.Input("table", "active_cell"))
-def update_graphs(active_cell):
-    if active_cell:
-        cell_data = df_radio.iloc[active_cell["row"]][active_cell["column_id"]]
-        return f"Data: \"{cell_data}\" from table cell: {active_cell}"
-    return "Click the table"
+    dash.Output("SIDEBAR", "is_open"),
+    dash.Input("SIDEBAR_BUTTON", "n_clicks"),
+    prevent_initial_call=True
+)
+def show_sidebar(n_clicks):
+    return True
+
+
+@app.callback(
+    dash.Output("PAGE_CONTENT", "children"),
+    dash.Input("URL", "pathname")
+)
+def set_sidebar(pathname):
+    if pathname == "/":
+        return overview.layout
+    elif pathname == "/episode":
+        return episode.layout
+    elif pathname == "/browse":
+        return browse.layout
+    elif pathname == "/about":
+        return about.layout
+    else:
+        return "404 not found"
 
 
 if __name__ == "__main__":

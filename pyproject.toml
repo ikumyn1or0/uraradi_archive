@@ -17,6 +17,8 @@ ja-ginza = "*"
 wordcloud = "*"
 emoji = "*"
 dash-bootstrap-components = "*"
+dash-mantine-components = "*"
+dash-iconify = "*"
 
 
 [build-system]

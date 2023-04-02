@@ -3,3 +3,4 @@ poetry.lock
 .venv
 
 src/Class/__pycache__
+src/pages/__pycache__
