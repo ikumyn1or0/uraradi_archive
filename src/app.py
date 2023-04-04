@@ -7,8 +7,12 @@ from dash_iconify import DashIconify
 from pages import overview, episode, browse, about
 
 
+PAGE_TITLE = "裏ラジアーカイブ(仮)"
+LAST_UPDATE = "2023-04-04"
+
+
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.DARKLY])
-app.title = "裏ラジアーカイブ(仮)"
+app.title = PAGE_TITLE
 server = app.server
 
 
@@ -17,25 +21,45 @@ navbar = dbc.Navbar(
         dbc.Stack(
             [
                 dmc.ActionIcon(
-                    DashIconify(icon="ci:hamburger-md", width=30),
+                    DashIconify(icon="icon-park:hamburger-button", width=30),
                     variant="filled",
-                    color="gray",
-                    id="SIDEBAR_BUTTON"
+                    color="blue",
+                    id="NAVBAR_HAMBURGER_BUTTON",
+                    size=30
                 ),
                 dash.html.A(
-                    dbc.Row([
-                        dbc.NavbarBrand("裏ラジアーカイブ(仮)")
-                    ]),
+                    dbc.NavbarBrand(PAGE_TITLE),
                     href="/",
                 )
             ],
             direction="horizontal",
             gap=3
+        ),
+        dbc.DropdownMenu(
+            label="LINK",
+            children=[
+                dbc.DropdownMenuItem("裏ラジオウルナイト", disabled=True),
+                dbc.DropdownMenuItem("YouTube", href="https://youtube.com/playlist?list=PLShwbdwZFm3r77Bwrr1quz2CpqJc6BZVL", target="_blank"),
+                dbc.DropdownMenuItem(divider=True),
+                dbc.DropdownMenuItem("大浦るかこ", disabled=True),
+                dbc.DropdownMenuItem("YouTube", href="https://www.youtube.com/@Rukako_Oura", target="_blank"),
+                dbc.DropdownMenuItem("Twitter", href="https://twitter.com/Rukako_Oura", target="_blank"),
+                dbc.DropdownMenuItem(divider=True),
+                dbc.DropdownMenuItem(PAGE_TITLE, disabled=True),
+                dbc.DropdownMenuItem("Github", href="https://github.com/ikumyn1or0/uraradi_archive", target="_blank"),
+                dbc.DropdownMenuItem("Contact", href="https://twitter.com/mega_ebi", target="_blank"),
+                dbc.DropdownMenuItem(f"最終更新：{LAST_UPDATE}", disabled=True),
+            ],
+            nav=True,
+            in_navbar=True,
+            menu_variant="dark",
+            align_end=True
         )
     ]),
-    color="dark",
+    color="primary",
     dark=True,
-    expand="lg"
+    expand="lg",
+    sticky="top"
 )
 
 
@@ -46,10 +70,10 @@ sidebar = dbc.Offcanvas(
     children=[
         dbc.Nav(
             [
-                dbc.NavItem(dbc.NavLink("OVERVIEW", href="/", active="exact", id="temp")),
-                dbc.NavItem(dbc.NavLink("EPISODE", href="/episode", active="exact")),
-                dbc.NavItem(dbc.NavLink("BROWSE", href="/browse", active="exact")),
-                dbc.NavItem(dbc.NavLink("ABOUT", href="/about", active="exact")),
+                dbc.NavItem(dbc.NavLink("OVERVIEW", href="/", active="exact", id="SIDEBAR_OVERVIEW_BUTTON")),
+                dbc.NavItem(dbc.NavLink("EPISODE", href="/episode", active="exact", id="SIDEBAR_EPISODE_BUTTON")),
+                dbc.NavItem(dbc.NavLink("BROWSE", href="/browse", active="exact", id="SIDEBAR_BROWSE_BUTTON")),
+                dbc.NavItem(dbc.NavLink("ABOUT", href="/about", active="exact", id="SIDEBAR_ABOUT_BUTTON")),
             ],
             justified=True,
             vertical=True,
@@ -57,13 +81,14 @@ sidebar = dbc.Offcanvas(
         )
     ],
     style={
-        "width": "300px"
+        "width": "300px",
+        "backgroundColor": "#243542"
     }
 )
 
 
-content = dash.html.Div(
-    id="PAGE_CONTENT",
+content = dbc.Container(
+    id="PAGE_CONTAINER_CONTENT",
 )
 
 
@@ -79,15 +104,25 @@ app.layout = dash.html.Div(
 
 @app.callback(
     dash.Output("SIDEBAR", "is_open"),
-    dash.Input("SIDEBAR_BUTTON", "n_clicks"),
+    [
+        dash.Input("NAVBAR_HAMBURGER_BUTTON", "n_clicks"),
+        dash.Input("SIDEBAR_OVERVIEW_BUTTON", "n_clicks"),
+        dash.Input("SIDEBAR_EPISODE_BUTTON", "n_clicks"),
+        dash.Input("SIDEBAR_BROWSE_BUTTON", "n_clicks"),
+        dash.Input("SIDEBAR_ABOUT_BUTTON", "n_clicks"),
+    ],
+    dash.State("SIDEBAR", "is_open"),
     prevent_initial_call=True
 )
-def show_sidebar(n_clicks):
-    return True
+def show_sidebar(n_clicks_hamburger, n_clicks_overview, n_clicks_episode, n_clicks_browse, n_clicks_about, is_open):
+    if is_open:
+        return False
+    else:
+        return True
 
 
 @app.callback(
-    dash.Output("PAGE_CONTENT", "children"),
+    dash.Output("PAGE_CONTAINER_CONTENT", "children"),
     dash.Input("URL", "pathname")
 )
 def set_sidebar(pathname):
@@ -105,3 +140,4 @@ def set_sidebar(pathname):
 
 if __name__ == "__main__":
     app.run_server(host="0.0.0.0", port=8080, debug=False)
+    # app.run_server(host="0.0.0.0", port=8080, debug=True)

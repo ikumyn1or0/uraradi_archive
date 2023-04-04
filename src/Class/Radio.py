@@ -1,3 +1,4 @@
+import copy
 import csv
 import dataclasses
 import re
@@ -8,6 +9,7 @@ from Class import Time
 
 
 ADDITIONAL_GUESTS = {"2022-10-28": ["島村シャルロット", "宗谷いちか"]}
+RECORDING_DATES = ["2023-03-10"]
 
 
 @dataclasses.dataclass()
@@ -69,6 +71,8 @@ class Radio:
     title: Title
     length: Time.Time
     guests: list[str]
+    is_clip: bool
+    is_recording: bool
 
     def __init__(self, **args):
         self.date = args["date"]
@@ -78,6 +82,8 @@ class Radio:
         self.guests = self.title.extract_guests()
         if self.date in ADDITIONAL_GUESTS.keys():
             self.guests.extend(ADDITIONAL_GUESTS[self.date])
+        self.is_clip = ("総集編" in args["title"])
+        self.is_recording = (args["date"] in RECORDING_DATES)
 
     def url_to_id(self, url: str) -> str:
         ID_LENGTH = 11
@@ -96,6 +102,12 @@ class Radio:
         else:
             return f"https://youtu.be//{self.youtube_id}?t={timestamp}"
 
+    def get_guests(self):
+        return copy.deepcopy(self.guests)
+
+    def get_length(self):
+        return copy.deepcopy(self.length)
+
 
 @dataclasses.dataclass()
 class RadioList:
@@ -107,3 +119,33 @@ class RadioList:
             for row in reader:
                 date = row["date"]
                 self.radios[date] = Radio(**row)
+
+    def get_total_num(self):
+        return len(self.radios)
+
+    def get_total_guests_num(self):
+        guests = []
+        for radio in self.radios.values():
+            guests.extend(radio.get_guests())
+        return len(set(guests))
+
+    def get_total_length(self):
+        time_list = []
+        for radio in self.radios.values():
+            time_list.append(radio.get_length())
+        return Time.sum_time(time_list)
+
+    def get_average_length(self):
+        time_list = []
+        for radio in self.radios.values():
+            if radio.is_clip or radio.is_recording:
+                pass
+            else:
+                time_list.append(radio.get_length())
+        return Time.average_time(time_list)
+
+    def get_total_guests(self):
+        guests = []
+        for radio in self.radios.values():
+            guests.extend(radio.get_guests())
+        return list(set(guests))

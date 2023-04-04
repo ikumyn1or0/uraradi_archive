@@ -5,9 +5,9 @@ import dash_bootstrap_components as dbc
 PAGE_ID = "EPISODE"
 
 
-layout = dbc.Container([
+layout = dbc.Col([
     dash.html.Br(),
-    dash.html.H2("EPISODE", style={"textAlign": "center"}),
+    dash.html.H3("EPISODE", style={"textAlign": "center"}),
     dash.html.Br(),
     dash.dcc.Markdown("放送回ごとの分析をするページです。"),
     dash.dcc.Markdown("まだ見ないでね。"),
