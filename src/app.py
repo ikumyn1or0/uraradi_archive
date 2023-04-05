@@ -2,6 +2,7 @@ import dash
 import dash_bootstrap_components as dbc
 import dash_mantine_components as dmc
 from dash_iconify import DashIconify
+import logging
 
 
 from pages import overview, episode, browse, about
@@ -9,6 +10,10 @@ from pages import overview, episode, browse, about
 
 PAGE_TITLE = "裏ラジアーカイブ(仮)"
 LAST_UPDATE = "2023-04-04"
+
+
+log = logging.getLogger("werkzeug")
+log.setLevel(logging.ERROR)
 
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.DARKLY])
