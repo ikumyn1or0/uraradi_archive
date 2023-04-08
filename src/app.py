@@ -2,18 +2,13 @@ import dash
 import dash_bootstrap_components as dbc
 import dash_mantine_components as dmc
 from dash_iconify import DashIconify
-import logging
 
 
 from pages import overview, episode, browse, about
 
 
 PAGE_TITLE = "裏ラジアーカイブ(仮)"
-LAST_UPDATE = "2023-04-04"
-
-
-log = logging.getLogger("werkzeug")
-log.setLevel(logging.ERROR)
+LAST_UPDATE = "2023-04-08"
 
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.DARKLY])
@@ -26,16 +21,14 @@ navbar = dbc.Navbar(
         dbc.Stack(
             [
                 dmc.ActionIcon(
-                    DashIconify(icon="icon-park:hamburger-button", width=30),
+                    DashIconify(icon="streamline:interface-setting-menu-parallel-hamburger-square-navigation-parallel-hamburger-buttonmenu-square", width=30),
                     variant="filled",
-                    color="blue",
+                    color="gray",
                     id="NAVBAR_HAMBURGER_BUTTON",
-                    size=30
-                ),
+                    size=30),
                 dash.html.A(
-                    dbc.NavbarBrand(PAGE_TITLE),
-                    href="/",
-                )
+                    dbc.NavbarBrand([dash.html.Img(src=r"assets/logo/middle.png", height="50px")]),
+                    href="/",)
             ],
             direction="horizontal",
             gap=3
@@ -53,8 +46,7 @@ navbar = dbc.Navbar(
                 dbc.DropdownMenuItem(PAGE_TITLE, disabled=True),
                 dbc.DropdownMenuItem("Github", href="https://github.com/ikumyn1or0/uraradi_archive", target="_blank"),
                 dbc.DropdownMenuItem("Contact", href="https://twitter.com/mega_ebi", target="_blank"),
-                dbc.DropdownMenuItem(f"最終更新：{LAST_UPDATE}", disabled=True),
-            ],
+                dbc.DropdownMenuItem(f"最終更新：{LAST_UPDATE}", disabled=True)],
             nav=True,
             in_navbar=True,
             menu_variant="dark",
@@ -78,8 +70,7 @@ sidebar = dbc.Offcanvas(
                 dbc.NavItem(dbc.NavLink("OVERVIEW", href="/", active="exact", id="SIDEBAR_OVERVIEW_BUTTON")),
                 dbc.NavItem(dbc.NavLink("EPISODE", href="/episode", active="exact", id="SIDEBAR_EPISODE_BUTTON")),
                 dbc.NavItem(dbc.NavLink("BROWSE", href="/browse", active="exact", id="SIDEBAR_BROWSE_BUTTON")),
-                dbc.NavItem(dbc.NavLink("ABOUT", href="/about", active="exact", id="SIDEBAR_ABOUT_BUTTON")),
-            ],
+                dbc.NavItem(dbc.NavLink("ABOUT", href="/about", active="exact", id="SIDEBAR_ABOUT_BUTTON"))],
             justified=True,
             vertical=True,
             pills=True,
@@ -87,14 +78,11 @@ sidebar = dbc.Offcanvas(
     ],
     style={
         "width": "300px",
-        "backgroundColor": "#243542"
-    }
+        "backgroundColor": "#1B3A50"}
 )
 
 
-content = dbc.Container(
-    id="PAGE_CONTAINER_CONTENT",
-)
+content = dbc.Container(id="PAGE_CONTAINER_CONTENT")
 
 
 app.layout = dash.html.Div(

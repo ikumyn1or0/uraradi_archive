@@ -1,4 +1,5 @@
 import dataclasses
+import datetime
 
 
 @dataclasses.dataclass()
@@ -37,6 +38,19 @@ class Time:
         if self.time_s < 0:
             hms = "-" + hms
         return hms
+
+    def as_datetime(self, year=1900, month=1, day=1):
+        abs_time_s = abs(self.time_s)
+        seconds = abs_time_s % 60
+        minutes = int(abs_time_s / 60) % 60
+        hours = int(abs_time_s / 3600) % 24
+        days = int(abs_time_s / 86400)
+        return datetime.datetime(year=year,
+                                 month=month,
+                                 day=day + days,
+                                 hour=hours,
+                                 minute=minutes,
+                                 second=seconds)
 
 
 def sum_time(time_list):
