@@ -54,15 +54,8 @@ class Time:
 
 
 def sum_time(time_list):
-    time_s = 0
-    for time in time_list:
-        time_s += time.time_s
-    return Time(time_s)
+    return Time(sum([time.time_s for time in time_list]))
 
 
 def average_time(time_list):
-    time_s = 0
-    for time in time_list:
-        time_s += time.time_s
-    time_s = int(time_s / len(time_list))
-    return Time(time_s)
+    return Time(int(sum([time.time_s for time in time_list]) / len(time_list)))

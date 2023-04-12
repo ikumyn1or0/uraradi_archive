@@ -24,16 +24,15 @@ radio_df_columns = ["日付",
                     "リンク",
                     "タイトル"]
 radio_df_list = []
-for radio in radiolist.radios.values():
-    image_link = f"http://img.youtube.com/vi/{radio.youtube_id}/default.jpg"
+for date, radio in radiolist.get_radios(date_ascending=False):
+    image_link = radio.get_thumbnail_url()
     youtube_link = radio.get_url()
     title = radio.title.as_number() + "\n" + radio.title.as_shorten()
-    row = [radio.date,
+    row = [date,
            f"[![{title}]({image_link})]({youtube_link})",
            title]
     radio_df_list.append(row)
 radio_df = pd.DataFrame(radio_df_list, columns=radio_df_columns)
-radio_df = radio_df.sort_values(by="日付", ascending=False)
 RADIO_PAGE_SIZE = 5
 RADIO_PAGES = np.ceil(len(radio_df) / 5)
 
@@ -43,13 +42,12 @@ radiolength_df_columns = ["日付",
                           "テキスト",
                           "length"]
 radiolength_df_list = []
-for radio in radiolist.radios.values():
+for date, radio in radiolist.get_radios(date_ascending=True):
     if radio.is_clip or radio.is_recording:
         continue
-    date = radio.date
     row = [date,
            radio.length.as_datetime(),
-           radio.title.as_number() + "<br>" + radio.date + "<br>" + radio.length.as_hms(),
+           radio.title.as_number() + "<br>" + date + "<br>" + radio.length.as_hms(),
            radio.length]
     radiolength_df_list.append(row)
 radiolength_df = pd.DataFrame(radiolength_df_list, columns=radiolength_df_columns)
@@ -68,60 +66,102 @@ layout = dbc.Stack(
         dash.html.Br(),
         dash.html.H3("OVERVIEW", style={"textAlign": "center"}),
         dash.dcc.Markdown("こちらのサイトはまだ開発中です！\n現在運用中の裏ラジアーカイブスは[こちら](https://uraradi-archives.streamlit.app/)。", style={"white-space": "pre"}),
+        dash.html.Div(dbc.Button("クリックしてページの説明を表示",
+                                 id=f"{PAGE_ID}_PAGE_EXPLAIN_BUTTON",
+                                 size="sm")
+                      ),
+        dbc.Collapse(
+            dbc.Card(
+                dbc.CardBody(dash.dcc.Markdown("""
+                                               本サイトはななしいんく所属VTuber[大浦るかこ](https://www.youtube.com/@Rukako_Oura)さんが、金曜日25時から放送中のラジオ「[裏ラジオウルナイト（裏ラジ）](https://www.youtube.com/playlist?list=PLShwbdwZFm3r77Bwrr1quz2CpqJc6BZVL)」に関する情報をまとめたファンサイトです。\n
+                                               ラジオの放送時間・ゲスト情報・[文字起こしAIのWhisper](https://openai.com/research/whisper)による書き起こしテキスト・チャットログなどが利用できます。\n
+                                               画面左上にあるグレーのアイコンでサイドバーを表示し、各種ページに移動することができます。\n
+                                               **各ページの内容**
+                                               - [OVERVIEW](/): ラジオ全体の情報を表示するページ
+                                               - [EPISODE](/episode): 各放送回の情報を表示するページ
+                                               - [BROWSE](/browse): 作成中
+                                               - [ABOUT](/about): 作成中
+                                               """)
+                             )
+            ),
+            id=f"{PAGE_ID}_PAGE_EXPLAIN_COLLAPSE",
+            is_open=False
+        ),
         dbc.Card([
-            dbc.CardBody([
-                dbc.Stack(
-                    [
-                        dbc.Row([
-                            dbc.Col([
-                                dash.html.P("放送", className="card-text"),
-                                dash.html.H4(f"{radio_total_num}回", className="card-text")]),
-                            dbc.Col([
-                                dash.html.P("ゲスト", className="card-text"),
-                                dash.html.H4(f"{radio_total_guests}人", className="card-text")])]),
-                        dbc.Row([
-                            dbc.Col([
-                                dash.html.P("合計時間", className="card-text"),
-                                dash.html.H4(radio_total_length.as_hms(ja_style=True), className="card-text")]),
-                            dbc.Col([
-                                dash.html.P("平均時間", className="card-text"),
-                                dash.html.H4(radio_average_length.as_hms(ja_style=True), className="card-text"),
-                                dash.html.P("※総集編・収録放送は除外", className="card-text", style={"font-size": 10})])])
-                    ],
-                    gap=5
-                )
-            ])
+            dbc.CardHeader(dash.html.H3("放送概要",
+                                        style={"margin": 0})
+                           ),
+            dbc.CardBody(dbc.Stack(
+                [
+                    dbc.Row([
+                        dbc.Col([
+                            dash.html.P("放送回数",
+                                        className="card-text"),
+                            dash.html.H4(f"{radio_total_num}回",
+                                         className="card-text")
+                        ]),
+                        dbc.Col([
+                            dash.html.P("ゲスト数",
+                                        className="card-text"),
+                            dash.html.H4(f"{radio_total_guests}人",
+                                         className="card-text")
+                        ])
+                    ]),
+                    dbc.Row([
+                        dbc.Col([
+                            dash.html.P("合計放送時間",
+                                        className="card-text"),
+                            dash.html.H4(radio_total_length.as_hms(ja_style=True),
+                                         className="card-text")
+                        ]),
+                        dbc.Col([
+                            dash.html.P("平均放送時間",
+                                        className="card-text"),
+                            dash.html.H4(radio_average_length.as_hms(ja_style=True),
+                                         className="card-text"),
+                            dash.html.P("※総集編・収録放送は除外",
+                                        className="card-text",
+                                        style={"font-size": 10})
+                        ])
+                    ])
+                ],
+                gap=5
+            ))
         ]),
         dbc.Card([
-            dbc.CardHeader(dash.html.H3("放送回一覧", style={"margin": 0})),
-            dbc.CardBody([
-                dbc.Stack(
-                    [
-                        dbc.Pagination(
-                            id=f"{PAGE_ID}_RADIO_PAGINATION",
-                            active_page=1,
-                            max_value=RADIO_PAGES,
-                            fully_expanded=False,
-                            className="ms-auto"),
-                        dbc.Container(
-                            id=f"{PAGE_ID}_RADIO_CONTENT"),
-                    ],
-                    gap=3
-                )
-            ])
+            dbc.CardHeader(dash.html.H3("放送回一覧",
+                                        style={"margin": 0})
+                           ),
+            dbc.CardBody(dbc.Stack(
+                [
+                    dbc.Pagination(
+                        id=f"{PAGE_ID}_RADIO_PAGINATION",
+                        active_page=1,
+                        max_value=RADIO_PAGES,
+                        fully_expanded=False,
+                        className="ms-auto"),
+                    dbc.Container(id=f"{PAGE_ID}_RADIO_CONTENT"),
+                ],
+                gap=3
+            ))
         ]),
         dbc.Card([
-            dbc.CardHeader(dash.html.H3("放送時間", style={"margin": 0})),
+            dbc.CardHeader(dash.html.H3("放送時間",
+                           style={"margin": 0})
+                           ),
             dbc.CardBody([
+                dash.dcc.Markdown("表示方法を選択してください。"),
                 dbc.Stack(
                     [
                         dash.dcc.Dropdown(
                             id=f"{PAGE_ID}_RADIOLENGTH_SELECTOR",
-                            options=[{"label": dash.html.Span(v, style={"color": "#112137"}),
-                                      "value": v}
-                                     for v in ["集計なし", "放送回別", "月別", "3ヶ月別", "年別"]],
-                            value="集計なし",
-                            placeholder="表示方法を選択してください。",
+                            options=[
+                                {"label": dash.html.Span(v, style={"color": "#112137"}),
+                                 "value": v}
+                                for v in ["回数", "放送回別", "月別", "3ヶ月別", "年別"]
+                            ],
+                            value="回数",
+                            optionHeight=50,
                             clearable=False),
                         dash.dcc.Graph(id=f"{PAGE_ID}_RADIOLENGTH_CONTENT")
                     ],
@@ -132,6 +172,17 @@ layout = dbc.Stack(
     ],
     gap=3
 )
+
+
+@dash.callback(
+    dash.Output(f"{PAGE_ID}_PAGE_EXPLAIN_COLLAPSE", "is_open"),
+    dash.Input(f"{PAGE_ID}_PAGE_EXPLAIN_BUTTON", "n_clicks"),
+    dash.State(f"{PAGE_ID}_PAGE_EXPLAIN_COLLAPSE", "is_open")
+)
+def show_page_explainer(n_clicks, is_open):
+    if n_clicks:
+        return not is_open
+    return is_open
 
 
 @dash.callback(
@@ -149,7 +200,8 @@ def update_radiolength_graph(value):
                                  hovertemplate="%{text}<extra></extra>",
                                  text=radiolength_df["テキスト"],
                                  showlegend=False
-                                 ))
+                                 )
+                      )
         fig.update_xaxes(title="日付",
                          tickformat="%Y-%m")
     elif value in ["月別", "3ヶ月別", "年別"]:
@@ -159,31 +211,25 @@ def update_radiolength_graph(value):
                                  marker_color="#0caaec",
                                  hovertemplate="%{text}<extra></extra>",
                                  text=radiolength_df["テキスト"],
-                                 showlegend=False
-                                 ))
+                                 showlegend=False)
+                      )
         radiolength_agg_df = radiolength_agg_dfs[value]
         fig.add_trace(go.Scatter(x=radiolength_agg_df[value],
                                  y=radiolength_agg_df["平均放送時間"],
                                  mode="lines",
                                  marker_color="#0caaec",
                                  showlegend=False,
-                                 hoverinfo="skip"
-                                 ))
+                                 hoverinfo="skip")
+                      )
         fig.update_xaxes(title="日付",
                          tickformat="%Y-%m")
     else:
         fig.add_trace(go.Histogram(y=radiolength_df["放送時間"],
                                    marker_color="#0caaec",
-                                   hovertemplate="%{y}<br>%{x}回<extra></extra>"
-                                   ))
+                                   hovertemplate="%{y}<br>%{x}回<extra></extra>")
+                      )
         fig.update_xaxes(title="回数")
-    # fig.add_hline(y=radio_average_length.as_datetime().timestamp() * 1000,
-    #               line_dash="dot",
-    #               line_color="#e8da18",
-    #               annotation_text=f"平均 {radio_average_length.as_hms()}",
-    #               )
-    fig.update_xaxes(title="日付",
-                     gridcolor="#808080")
+    fig.update_xaxes(gridcolor="#808080")
     fig.update_yaxes(title="時間",
                      tickformat="%H:%M:00",
                      gridcolor="#808080")

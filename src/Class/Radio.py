@@ -16,6 +16,9 @@ RECORDING_DATES = ["2023-03-10"]
 class Title:
     title: str
 
+    def as_full(self):
+        return self.title
+
     def as_number(self):
         if "総集編" in self.title:
             return self.title[8:15]
@@ -48,18 +51,12 @@ class Title:
         if 2 <= self.title.count("【"):
             casts_with_belongs = self.title[self.title.rfind("【"): self.title.rfind("】")]
             casts = casts_with_belongs[1: casts_with_belongs.find(" / ")]
-            guests = []
-            for cast in casts.split("・"):
-                if cast != "大浦るかこ":
-                    guests.append(cast)
+            guests = [cast for cast in casts.split("・") if cast != "大浦るかこ"]
             return guests
         if 2 <= self.title.count("｜"):
             casts_with_belongs = self.title[self.title.rfind("｜"): self.title.rfind(" // ")]
             casts = casts_with_belongs[1:]
-            guests = []
-            for cast in casts.split(" / "):
-                if cast != "大浦るかこ":
-                    guests.append(cast)
+            guests = [cast for cast in casts.split(" / ") if cast != "大浦るかこ"]
             return guests
         raise Exception
 
@@ -102,6 +99,12 @@ class Radio:
         else:
             return f"https://youtu.be//{self.youtube_id}?t={timestamp}"
 
+    def get_thumbnail_url(self, quality="default"):
+        if quality in ["hqdefault", "mqdefault", "sddefault", "maxresdefault"]:
+            return f"http://img.youtube.com/vi/{self.youtube_id}/{quality}.jpg"
+        else:
+            return f"http://img.youtube.com/vi/{self.youtube_id}/default.jpg"
+
     def get_guests(self):
         return copy.deepcopy(self.guests)
 
@@ -120,28 +123,30 @@ class RadioList:
                 date = row["date"]
                 self.radios[date] = Radio(**row)
 
+    def get_dates(self, ascending=False):
+        return sorted(list(self.radios.keys()), reverse=not ascending)
+
+    def get_radios(self, date_ascending=False):
+        return sorted(list(self.radios.items()), key=lambda x: x[0], reverse=not date_ascending)
+
+    def get_radio_in(self, date):
+        return self.radios[date]
+
     def get_total_num(self):
         return len(self.radios)
 
     def get_total_guests_num(self):
         guests = []
-        for radio in self.radios.values():
+        for date, radio in self.get_radios():
             guests.extend(radio.get_guests())
         return len(set(guests))
 
     def get_total_length(self):
-        time_list = []
-        for radio in self.radios.values():
-            time_list.append(radio.get_length())
+        time_list = [radio.get_length() for date, radio in self.get_radios()]
         return Time.sum_time(time_list)
 
     def get_average_length(self):
-        time_list = []
-        for radio in self.radios.values():
-            if radio.is_clip or radio.is_recording:
-                pass
-            else:
-                time_list.append(radio.get_length())
+        time_list = [radio.get_length() for date, radio in self.get_radios() if not radio.is_clip and not radio.is_recording]
         return Time.average_time(time_list)
 
     def get_total_guests(self):
