@@ -54,16 +54,15 @@ class TranscriptList:
             date = filename.split(".")[0]
             dates.append(date)
         for date in dates:
-            self.transcripts[date] = Transcript(date)
+            self.transcripts[date] = None
 
     def get_dates(self, ascending=False):
         return sorted(list(self.transcripts.keys()), reverse=not ascending)
 
     def get_transcript_in(self, date):
+        if self.transcripts[date] is None:
+            self.transcripts[date] = Transcript(date)
         return self.transcripts[date]
-
-    def get_transcripts(self, date_ascending=False):
-        return sorted(list(self.transcripts.items()), key=lambda x: x[0], reverse=not date_ascending)
 
 
 @dataclasses.dataclass()
@@ -111,13 +110,12 @@ class ChatList:
             date = filename.split(".")[0]
             dates.append(date)
         for date in dates:
-            self.chats[date] = Chat(date)
+            self.chats[date] = None
 
     def get_dates(self, ascending=False):
         return sorted(list(self.chats.keys()), reverse=not ascending)
 
     def get_chat_in(self, date):
+        if self.chats[date] is None:
+            self.chats[date] = Chat(date)
         return self.chats[date]
-
-    def get_chats(self, date_ascending=False):
-        return sorted(list(self.chats.items()), key=lambda x: x[0], reverse=not date_ascending)
