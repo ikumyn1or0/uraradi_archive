@@ -1,7 +1,16 @@
-# 
 # URARADI_ARCHIVE
 
 以下サイト作成用のディレクトリ。
 
-- https://uraradi-archive-210207.an.r.appspot.com/
 - https://uraradi-archive.net/
+
+# memo
+
+- chat, scriptsは23.01から最新まで追加
+  - 適当なタイミングでcsvをフォルダに入れる
+- テキスト表示時の10秒送り/戻し機能を追加したい
+- Wordcloud表示機能も追加したい
+- チャプター自動推定機能も追加したい
+- 書き起こしテキスト整形機能も追加したい
+  - 連続して同じテキストがある場合はマージする
+  - チャットデータから固有名詞を推定する

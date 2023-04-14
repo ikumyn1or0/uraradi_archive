@@ -8,7 +8,7 @@ from pages import overview, episode, browse, about
 
 
 PAGE_TITLE = "裏ラジアーカイブ(仮)"
-LAST_UPDATE = "2023-04-12"
+LAST_UPDATE = "2023-04-14"
 
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.DARKLY])
@@ -28,9 +28,11 @@ navbar = dbc.Navbar(
                     id="NAVBAR_HAMBURGER_BUTTON",
                     size=30),
                 dash.html.A(
-                    dbc.NavbarBrand(dash.html.Img(src=r"assets/logo/middle.png",
-                                                  height="50px")
-                                    ),
+                    dbc.NavbarBrand(
+                        dash.html.Img(
+                            src=r"assets/logo/middle.png",
+                            height="50px")
+                    ),
                     href="/",)
             ],
             direction="horizontal",
@@ -39,31 +41,40 @@ navbar = dbc.Navbar(
         dbc.DropdownMenu(
             label="LINK",
             children=[
-                dbc.DropdownMenuItem("裏ラジオウルナイト",
-                                     disabled=True),
-                dbc.DropdownMenuItem("YouTube",
-                                     href="https://youtube.com/playlist?list=PLShwbdwZFm3r77Bwrr1quz2CpqJc6BZVL",
-                                     target="_blank"),
+                dbc.DropdownMenuItem(
+                    "裏ラジオウルナイト",
+                    disabled=True),
+                dbc.DropdownMenuItem(
+                    "YouTube",
+                    href="https://youtube.com/playlist?list=PLShwbdwZFm3r77Bwrr1quz2CpqJc6BZVL",
+                    target="_blank"),
                 dbc.DropdownMenuItem(divider=True),
-                dbc.DropdownMenuItem("大浦るかこ",
-                                     disabled=True),
-                dbc.DropdownMenuItem("YouTube",
-                                     href="https://www.youtube.com/@Rukako_Oura",
-                                     target="_blank"),
-                dbc.DropdownMenuItem("Twitter",
-                                     href="https://twitter.com/Rukako_Oura",
-                                     target="_blank"),
+                dbc.DropdownMenuItem(
+                    "大浦るかこ",
+                    disabled=True),
+                dbc.DropdownMenuItem(
+                    "YouTube",
+                    href="https://www.youtube.com/@Rukako_Oura",
+                    target="_blank"),
+                dbc.DropdownMenuItem(
+                    "Twitter",
+                    href="https://twitter.com/Rukako_Oura",
+                    target="_blank"),
                 dbc.DropdownMenuItem(divider=True),
-                dbc.DropdownMenuItem(PAGE_TITLE,
-                                     disabled=True),
-                dbc.DropdownMenuItem("Github",
-                                     href="https://github.com/ikumyn1or0/uraradi_archive",
-                                     target="_blank"),
-                dbc.DropdownMenuItem("Contact",
-                                     href="https://twitter.com/mega_ebi",
-                                     target="_blank"),
-                dbc.DropdownMenuItem(f"最終更新：{LAST_UPDATE}",
-                                     disabled=True)],
+                dbc.DropdownMenuItem(
+                    PAGE_TITLE,
+                    disabled=True),
+                dbc.DropdownMenuItem(
+                    "Github",
+                    href="https://github.com/ikumyn1or0/uraradi_archive",
+                    target="_blank"),
+                dbc.DropdownMenuItem(
+                    "Contact",
+                    href="https://twitter.com/mega_ebi",
+                    target="_blank"),
+                dbc.DropdownMenuItem(
+                    f"最終更新：{LAST_UPDATE}",
+                    disabled=True)],
             nav=True,
             in_navbar=True,
             menu_variant="dark",
@@ -84,26 +95,34 @@ sidebar = dbc.Offcanvas(
     children=[
         dbc.Nav(
             [
-                dbc.NavItem(dbc.NavLink("OVERVIEW",
-                                        href="/",
-                                        active="exact",
-                                        id="SIDEBAR_OVERVIEW_BUTTON")
-                            ),
-                dbc.NavItem(dbc.NavLink("EPISODE",
-                                        href="/episode",
-                                        active="exact",
-                                        id="SIDEBAR_EPISODE_BUTTON")
-                            ),
-                dbc.NavItem(dbc.NavLink("BROWSE",
-                                        href="/browse",
-                                        active="exact",
-                                        id="SIDEBAR_BROWSE_BUTTON")
-                            ),
-                dbc.NavItem(dbc.NavLink("ABOUT",
-                                        href="/about",
-                                        active="exact",
-                                        id="SIDEBAR_ABOUT_BUTTON")
-                            )
+                dbc.NavItem(
+                    dbc.NavLink(
+                        "OVERVIEW",
+                        href="/",
+                        active="exact",
+                        id="SIDEBAR_OVERVIEW_BUTTON")
+                ),
+                dbc.NavItem(
+                    dbc.NavLink(
+                        "EPISODE",
+                        href="/episode",
+                        active="exact",
+                        id="SIDEBAR_EPISODE_BUTTON")
+                ),
+                dbc.NavItem(
+                    dbc.NavLink(
+                        "BROWSE",
+                        href="/browse",
+                        active="exact",
+                        id="SIDEBAR_BROWSE_BUTTON")
+                ),
+                dbc.NavItem(
+                    dbc.NavLink(
+                        "ABOUT",
+                        href="/about",
+                        active="exact",
+                        id="SIDEBAR_ABOUT_BUTTON")
+                )
             ],
             justified=True,
             vertical=True,
@@ -165,5 +184,5 @@ def set_sidebar(pathname):
 
 
 if __name__ == "__main__":
-    app.run_server(host="0.0.0.0", port=8080, debug=False)
+    app.run_server(host="0.0.0.0", port=8080, debug=False) 
     # app.run_server(host="0.0.0.0", port=8080, debug=True)
