@@ -8,7 +8,7 @@ from pages import overview, episode, browse, about
 
 
 PAGE_TITLE = "裏ラジアーカイブ(仮)"
-LAST_UPDATE = "2023-04-14"
+LAST_UPDATE = "2023-04-16"
 
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.DARKLY])
@@ -184,5 +184,5 @@ def set_sidebar(pathname):
 
 
 if __name__ == "__main__":
-    app.run_server(host="0.0.0.0", port=8080, debug=False) 
+    app.run_server(host="0.0.0.0", port=8080, debug=False)
     # app.run_server(host="0.0.0.0", port=8080, debug=True)
