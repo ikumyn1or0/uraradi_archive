@@ -171,7 +171,7 @@ layout = dbc.Stack(
                             "value": v
                         } for v in ["回数", "放送回別", "月別", "3ヶ月別", "年別"]
                     ],
-                    value="回数",
+                    value="放送回別",
                     optionHeight=50,
                     clearable=False),
                 dash.dcc.Graph(id=f"{PAGE_ID}_RADIOLENGTH_CONTENT")

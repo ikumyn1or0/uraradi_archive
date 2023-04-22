@@ -8,7 +8,7 @@ from pages import overview, episode, browse, about
 
 
 PAGE_TITLE = "裏ラジアーカイブ(仮)"
-LAST_UPDATE = "2023-04-16"
+LAST_UPDATE = "2023-04-22"
 
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.DARKLY])
